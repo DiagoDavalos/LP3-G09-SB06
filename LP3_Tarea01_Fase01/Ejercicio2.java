@@ -1,4 +1,4 @@
-package PrimeroT1;
+package PrimeroT1.LP3_Tarea01_Fase01;
 
 import java.util.ArrayList;
 import java.util.Scanner;
