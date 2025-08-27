@@ -20,7 +20,7 @@ abstract class Persona implements IMostrable {
 
 class Estudiante extends Persona {
     private String carrera;
-    private static int contadorEstudiantes = 0;  // ✅ variable de clase
+    private static int contadorEstudiantes = 0; 
 
     public Estudiante(String nombre, int edad, String carrera) {
         super(nombre, edad);
