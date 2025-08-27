@@ -1,12 +1,8 @@
-package EjercicioLP3_Practica2;
+package Ejercicio_P2;
 
 import java.util.ArrayList;
 
-interface IMostrable {
-    void mostrarInfo();
-}
-
-abstract class Persona implements IMostrable {
+abstract class Persona {
     protected String nombre;
     protected int edad;
 
@@ -21,7 +17,6 @@ abstract class Persona implements IMostrable {
 class Estudiante extends Persona {
     private String carrera;
     private static int contadorEstudiantes = 0; 
-
     public Estudiante(String nombre, int edad, String carrera) {
         super(nombre, edad);
         this.carrera = carrera;
@@ -52,25 +47,20 @@ class Profesor extends Persona {
     }
 }
 
-class Curso implements IMostrable {
+class Curso {
     private String nombreCurso;
-    private String categoria; 
     private Profesor profesor; 
     private ArrayList<Estudiante> estudiantes; 
-    public static final int Max_Estu = 30;   
+    public static final int MAX_ESTUDIANTES = 30; 
 
-    public Curso(String nombreCurso, String categoria, Profesor profesor) {
+    public Curso(String nombreCurso, Profesor profesor) {
         this.nombreCurso = nombreCurso;
-        this.categoria = categoria;
         this.profesor = profesor;
         this.estudiantes = new ArrayList<>();
     }
 
-    public String getNombreCurso() { return nombreCurso; }
-    public String getCategoria() { return categoria; }
-
     public void agregarEstudiante(Estudiante e) {
-        if(estudiantes.size() < Max_Estu){
+        if(estudiantes.size() < MAX_ESTUDIANTES){
             estudiantes.add(e);
             System.out.println("Estudiante " + e.nombre + " agregado al curso " + nombreCurso);
         } else {
@@ -78,9 +68,8 @@ class Curso implements IMostrable {
         }
     }
 
-    @Override
-    public void mostrarInfo() {
-        System.out.println("\nCurso: " + nombreCurso + " | Categoría: " + categoria);
+    public void mostrarCurso() {
+        System.out.println("\nCurso: " + nombreCurso);
         profesor.mostrarInfo();
         System.out.println("Estudiantes matriculados: " + estudiantes.size());
         for(Estudiante e : estudiantes) {
@@ -101,28 +90,20 @@ class SistemaGestion {
     }
 
     public void mostrarSistema() {
-        System.out.println(" SISTEMA DE GESTIÓN DE CURSOS ");
+        System.out.println("SISTEMA DE GESTIÓN DE CURSOS ");
         for(Curso c : cursos) {
-            c.mostrarInfo();
-        }
-    }
-
-    public void mostrarCursosDisponibles() {
-        System.out.println("\nCursos disponibles en el sistema:");
-        for (Curso c : cursos) {
-            System.out.println("- " + c.getNombreCurso() + " (" + c.getCategoria() + ")");
+            c.mostrarCurso();
         }
     }
 }
 
-public class Ejercicio_Practica2 {
+public class prueba {
     public static void main(String[] args) {
-
         Profesor prof1 = new Profesor("Juan Perez", 40, "Matemáticas");
         Profesor prof2 = new Profesor("Ana Gómez", 35, "Programación");
 
-        Curso curso1 = new Curso("Matemáticas 1", "Matemáticas", prof1);
-        Curso curso2 = new Curso("Programación 1", "Programación", prof2);
+        Curso curso1 = new Curso("Matemáticas 1", prof1);
+        Curso curso2 = new Curso("Programación 1", prof2);
 
         Estudiante est1 = new Estudiante("Carlos", 20, "Ingeniería");
         Estudiante est2 = new Estudiante("Lucía", 19, "Ingeniería");
@@ -137,8 +118,6 @@ public class Ejercicio_Practica2 {
         sistema.agregarCurso(curso2);
 
         sistema.mostrarSistema();
-
-        sistema.mostrarCursosDisponibles();
 
         System.out.println("\nTotal de estudiantes en el sistema: " + Estudiante.getContadorEstudiantes());
     }
