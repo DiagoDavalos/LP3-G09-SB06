@@ -1,0 +1,28 @@
+package Actividad;
+
+public class Habitacion {
+	private String numero;
+	private String tipo;
+	private double precioBase;
+	private boolean disponible;
+	
+	public Habitacion(String numero, String tipo, double precioBase ) {
+		this.disponible= true;
+		this.numero=numero;
+		this.tipo=tipo;
+		this.precioBase=precioBase;
+	}
+	public String getNumero() {
+		return numero;
+	}
+	public String getTipo() {
+		return tipo;	
+	}
+	public boolean getEsDisponible() {
+		return disponible;
+	}
+	public double getPrecioBase() {
+		return precioBase;
+	}
+	
+}

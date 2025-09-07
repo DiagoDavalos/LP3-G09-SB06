@@ -1,0 +1,18 @@
+package Actividad;
+
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+
+public class PoliticaCancelacionModerada implements PoliticaCancelacion {
+
+    @Override
+    public boolean puedeCancelar(Reserva reserva) {
+        long horasRestantes = ChronoUnit.HOURS.between(LocalDateTime.now(), reserva.getFechaCheckIn());
+        return horasRestantes >= 72;
+    }
+
+    @Override
+    public double calcularPenalidad(Reserva reserva) {
+        return reserva.getCostoTotal() * 0.5; // 50% de penalidad
+    }
+}

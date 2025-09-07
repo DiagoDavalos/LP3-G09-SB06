@@ -1,0 +1,48 @@
+package Actividad;
+
+import java.time.LocalDate;
+import java.util.List;
+
+
+public class GestionDisponibbilidadCuarto {
+	private List<Reserva> reservas;
+	
+	public GestionDisponibbilidadCuarto(List<Reserva> reservas) {
+		this.reservas=reservas;
+	}
+	public booleean verificarDisponiblidad(Habitacion habitacion, LocalDate inicio, LocalDate fin ) {
+		for (Reserva r : reservas) {
+			if (r.getHabitacion().equals(habitacion)&& r.seSuperpone(inicio,fin)) {
+				return false;
+			}
+		}
+		return true;
+	}
+	public void marcarReservada(Habitacion habitacion) {
+		habitacion.setDisponible(false); 
+	}
+	public void marcarDisponible(Habitacion gabitacion) {
+		habitacion.setDisponible(true);
+		
+	}
+}
+public class CalculadorPrecio{
+	public double calcularPrecio(Habitacion habitacion, String temporada, double descuento) {
+		double precio= habitacion.getPrecioBase();
+		if ("alta".equalsIgnoreCase(temporada)){
+			precio *=1.2;
+		}
+		else if ("baja".equalsIgnoreCase(temporada)) {
+			precio*=0.8;
+		}
+		return precio-(precio*descuento);
+	}
+	
+}
+public class GeneradorInforme {
+    public void generarInforme(Habitacion habitacion) {
+        System.out.println("Habitación " + habitacion.getNumero() +
+                           " - Tipo: " + habitacion.getTipo() +
+                           " - Disponible: " + habitacion.getEsDisponible());
+    }
+}
