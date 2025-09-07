@@ -1,0 +1,55 @@
+class Empleado { 
+
+    private String nombre; 
+
+    private double salario; 
+
+    private String departamento; 
+
+  
+
+    public Empleado(String nombre, double salario, String departamento) { 
+
+        this.nombre = nombre; 
+
+        this.salario = salario; 
+
+        this.departamento = departamento; 
+
+    } 
+
+  
+
+    public double getSalario() { return salario; } 
+
+    public String getNombre() { return nombre; } 
+
+} 
+
+  
+
+class CalculadoraPago { 
+
+    public double calcularPagoMensual(Empleado emp) { 
+
+        return emp.getSalario() / 12; 
+
+    } 
+
+} 
+
+  
+
+public class MainSRP { 
+
+    public static void main(String[] args) { 
+
+        Empleado e = new Empleado("Diego", 12000, "TI"); 
+
+        CalculadoraPago calc = new CalculadoraPago(); 
+
+        System.out.println("Pago mensual: " + calc.calcularPagoMensual(e)); 
+
+    } 
+
+} 
