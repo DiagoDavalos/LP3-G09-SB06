@@ -1,0 +1,121 @@
+package ejercicio3excepciones;
+
+// ===== Excepciones personalizadas =====
+class SaldoInsuficienteException extends Exception {
+    public SaldoInsuficienteException(String msg) { super(msg); }
+}
+
+// Hacerla SUBCLASE de SaldoInsuficienteException (clave del arreglo)
+class LimiteCreditoExcedidoException extends SaldoInsuficienteException {
+    public LimiteCreditoExcedidoException(String msg) { super(msg); }
+}
+
+// ===== Modelo de cuentas =====
+class CuentaBancaria {
+    private final String numeroCuenta;
+    private final String titular;
+    protected double saldo;
+
+    public CuentaBancaria(String numeroCuenta, String titular, double saldoInicial) {
+        if (saldoInicial < 0) throw new IllegalArgumentException("Saldo inicial negativo.");
+        this.numeroCuenta = numeroCuenta;
+        this.titular = titular;
+        this.saldo = saldoInicial;
+    }
+
+    public void depositar(double monto) {
+        if (monto <= 0) throw new IllegalArgumentException("Monto a depositar inválido.");
+        saldo += monto;
+    }
+
+    public void retirar(double monto) throws SaldoInsuficienteException {
+        if (monto <= 0) throw new IllegalArgumentException("Monto a retirar inválido.");
+        if (monto > saldo) throw new SaldoInsuficienteException("Saldo insuficiente.");
+        saldo -= monto;
+    }
+
+    public void transferir(CuentaBancaria destino, double monto) throws SaldoInsuficienteException {
+        if (destino == null) throw new IllegalArgumentException("Cuenta destino nula.");
+        retirar(monto);          // usa la regla de esta cuenta
+        destino.depositar(monto);
+    }
+
+    public double getSaldo() { return saldo; }
+
+    @Override 
+    public String toString() {
+        return String.format("Cuenta[%s - %s] saldo=%.2f", numeroCuenta, titular, saldo);
+    }
+}
+
+// ===== Cuenta con LÍMITE DE CRÉDITO =====
+class CuentaCredito extends CuentaBancaria {
+    private final double limiteCredito; // p.ej., 500 permite llegar a -500
+
+    public CuentaCredito(String numero, String titular, double saldoInicial, double limiteCredito) {
+        super(numero, titular, saldoInicial);
+        if (limiteCredito < 0) throw new IllegalArgumentException("Límite de crédito inválido.");
+        this.limiteCredito = limiteCredito;
+    }
+
+    @Override
+    public void retirar(double monto) throws LimiteCreditoExcedidoException {
+        if (monto <= 0) throw new IllegalArgumentException("Monto a retirar inválido.");
+        double nuevoSaldo = saldo - monto;
+        if (nuevoSaldo < -limiteCredito) {
+            double disponible = saldo + limiteCredito; // cuánto aún podía usar
+            throw new LimiteCreditoExcedidoException(
+                String.format("Operación supera el límite de crédito. Disponible: %.2f", disponible)
+            );
+        }
+        saldo = nuevoSaldo;
+    }
+
+    // Transferencia respetando el límite de crédito
+    public void transferir(CuentaBancaria destino, double monto) throws LimiteCreditoExcedidoException {
+        if (destino == null) throw new IllegalArgumentException("Cuenta destino nula.");
+        retirar(monto);          // aplica regla de crédito y PROPAGA la excepción (más específica)
+        destino.depositar(monto);
+    }
+}
+
+// ===== App de prueba (cálculos fijos) =====
+public class AppCredito {
+    public static void main(String[] args) {
+        System.out.println("=== Ejercicio 3: Límite de crédito y propagación de excepciones ===");
+
+        CuentaCredito cc = new CuentaCredito("001", "Luis", 100, 500);  // saldo 100, crédito 500
+        CuentaBancaria ahorros = new CuentaBancaria("002", "Ana", 50);
+
+        System.out.println("Inicial: " + cc);
+        System.out.println("Inicial: " + ahorros);
+
+        // 1) Retiro dentro del límite (OK)
+        try {
+            cc.retirar(400); // 100 - 400 = -300 (dentro de -500)
+            System.out.println("Retiro 400 OK. Nuevo saldo cc = " + cc.getSaldo());
+        } catch (Exception e) {
+            System.out.println("Fallo retiro 400: " + e.getMessage());
+        }
+
+        // 2) Transferencia válida dentro del crédito restante (OK)
+        try {
+            cc.transferir(ahorros, 100); // -300 - 100 = -400 (dentro de -500)
+            System.out.println("Transferencia 100 OK. cc=" + cc.getSaldo() + ", ahorros=" + ahorros.getSaldo());
+        } catch (Exception e) {
+            System.out.println("Fallo transferencia 100: " + e.getMessage());
+        }
+
+        // 3) Transferencia que EXCEDE el límite → lanza y se captura la excepción específica
+        try {
+            cc.transferir(ahorros, 200); // intentaría -400 - 200 = -600 (excede -500)
+            System.out.println("Transferencia 200 OK (no debería verse).");
+        } catch (LimiteCreditoExcedidoException e) {
+            System.out.println("Excepción capturada: " + e.getMessage());
+        }
+
+        System.out.println("Final: " + cc);
+        System.out.println("Final: " + ahorros);
+        System.out.println("Fin de la demo.");
+    }
+}
