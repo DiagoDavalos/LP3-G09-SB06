@@ -1,0 +1,62 @@
+package ejercicio1excepciones;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+// Excepciones personalizadas
+class VocalException extends Exception {
+    public VocalException(String msg) { super(msg); }
+}
+class NumeroException extends Exception {
+    public NumeroException(String msg) { super(msg); }
+}
+class BlancoException extends Exception {
+    public BlancoException(String msg) { super(msg); }
+}
+class SalidaException extends Exception {
+    public SalidaException(String msg) { super(msg); }
+}
+
+// Procesador de entrada
+class ProcesadorEntrada {
+    public void procesar(String entrada) throws VocalException, NumeroException, BlancoException, SalidaException {
+        if (entrada.equalsIgnoreCase("x")) {
+            throw new SalidaException("Salida detectada con 'x'.");
+        }
+        if (entrada.trim().isEmpty()) {
+            throw new BlancoException("Se ingresó un espacio en blanco.");
+        }
+        if ("aeiou".contains(entrada.toLowerCase())) {
+            throw new VocalException("Se ingresó una vocal: '" + entrada + "'");
+        }
+        if (entrada.matches("\\d")) {
+            throw new NumeroException("Se ingresó un número: '" + entrada + "'");
+        }
+        System.out.println("Entrada válida: " + entrada);
+    }
+}
+
+// Clase principal
+public class AppEntrada {
+    public static void main(String[] args) throws IOException {
+        BufferedReader lector = new BufferedReader(new InputStreamReader(System.in));
+        ProcesadorEntrada procesador = new ProcesadorEntrada();
+
+        System.out.println("Ingrese caracteres (x para salir):");
+
+        while (true) {
+            System.out.print("Entrada: ");
+            String entrada = lector.readLine();
+            try {
+                procesador.procesar(entrada);
+            } catch (VocalException | NumeroException | BlancoException e) {
+                System.out.println(e.getMessage());
+            } catch (SalidaException e) {
+                System.out.println(e.getMessage());
+                break;
+            }
+        }
+    }
+}
+
