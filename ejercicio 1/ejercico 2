@@ -1,0 +1,45 @@
+package ejercicio2excepciones;
+
+// Clase de excepción personalizada
+class DivisionPorCeroException extends Exception {
+    public DivisionPorCeroException() {
+        super("Error: No se puede dividir entre cero.");
+    }
+}
+
+// Clase Calculadora con operaciones básicas
+class Calculadora {
+    public static double sumar(double a, double b) { return a + b; }
+    public static double restar(double a, double b) { return a - b; }
+    public static double multiplicar(double a, double b) { return a * b; }
+    public static double dividir(double a, double b) throws DivisionPorCeroException {
+        if (b == 0) throw new DivisionPorCeroException();
+        return a / b;
+    }
+}
+
+// Clase principal
+public class AppCalculadora {
+    public static void main(String[] args) {
+        System.out.println("=== Ejercicio 2: Calculadora con Excepciones ===");
+
+        // operaciones fijas
+        System.out.println("Suma (5 + 3) = " + Calculadora.sumar(5, 3));
+        System.out.println("Resta (20 - 8) = " + Calculadora.restar(20, 8));
+        System.out.println("Multiplicación (7 * 6) = " + Calculadora.multiplicar(7, 6));
+
+        try {
+            System.out.println("División (10 / 0) = " + Calculadora.dividir(10, 0));
+        } catch (DivisionPorCeroException e) {
+            System.out.println(e.getMessage());
+        }
+
+        try {
+            System.out.println("División (12 / 4) = " + Calculadora.dividir(12, 4));
+        } catch (DivisionPorCeroException e) {
+            System.out.println(e.getMessage());
+        }
+
+        System.out.println("Fin del programa.");
+    }
+}
