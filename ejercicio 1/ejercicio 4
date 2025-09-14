@@ -1,0 +1,159 @@
+package ejercicio4excepciones;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Scanner;
+
+// ===== Excepción personalizada =====
+class HistorialVacioException extends Exception {
+    public HistorialVacioException(String mensaje) {
+        super(mensaje);
+    }
+}
+
+// ===== Clase Transacción =====
+class Transaccion {
+    private final String tipo;
+    private final double monto;
+
+    public Transaccion(String tipo, double monto) {
+        this.tipo = tipo;
+        this.monto = monto;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public double getMonto() {
+        return monto;
+    }
+}
+
+// ===== Clase Cuenta Bancaria =====
+class CuentaBancaria {
+    private final String numeroCuenta;
+    private final String titular;
+    private double saldo;
+    private final List<Transaccion> historial = new ArrayList<>();
+
+    public CuentaBancaria(String numeroCuenta, String titular, double saldoInicial) {
+        this.numeroCuenta = numeroCuenta;
+        this.titular = titular;
+        this.saldo = saldoInicial;
+    }
+
+    public void depositar(double monto) {
+        saldo += monto;
+        historial.add(new Transaccion("DEPÓSITO", monto));
+    }
+
+    public void retirar(double monto) {
+        saldo -= monto;
+        historial.add(new Transaccion("RETIRO", monto));
+    }
+
+    public double getSaldo() {
+        return saldo;
+    }
+
+    public String getNumeroCuenta() {
+        return numeroCuenta;
+    }
+
+    public String getTitular() {
+        return titular;
+    }
+
+    public List<Transaccion> getHistorial() {
+        return historial;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Cuenta[%s - %s] saldo=%.2f", numeroCuenta, titular, saldo);
+    }
+}
+
+// ===== Clase Reporte de Transacciones =====
+class ReporteTransacciones {
+
+    // Generar reporte
+    public static void escribirReporte(CuentaBancaria cuenta, Path archivo)
+            throws HistorialVacioException, IOException {
+
+        if (cuenta.getHistorial().isEmpty()) {
+            throw new HistorialVacioException("No hay transacciones para reportar.");
+        }
+
+        try (BufferedWriter bw = Files.newBufferedWriter(archivo, StandardCharsets.UTF_8)) {
+            bw.write("=== REPORTE DE TRANSACCIONES ===\n");
+            bw.write("Cuenta: " + cuenta.getNumeroCuenta() + "\n");
+            bw.write("Titular: " + cuenta.getTitular() + "\n");
+            bw.write(String.format(Locale.US, "Saldo actual: %.2f\n", cuenta.getSaldo()));
+            bw.write("--- Movimientos ---\n");
+            for (Transaccion t : cuenta.getHistorial()) {
+                bw.write(t.getTipo() + "  " + String.format(Locale.US, "%.2f", t.getMonto()) + "\n");
+            }
+            bw.write("=== FIN REPORTE ===\n");
+        }
+    }
+
+    // ✅ Lectura SIN throws, maneja IOException dentro
+    public static void leerReporte(Path archivo) {
+        try (Scanner sc = new Scanner(new File(archivo.toString()), StandardCharsets.UTF_8)) {
+            while (sc.hasNextLine()) {
+                System.out.println(sc.nextLine());
+            }
+        } catch (IOException e) {
+            System.out.println("Error al leer el archivo: " + e.getMessage());
+        }
+    }
+}
+
+// ===== Clase principal =====
+public class AppReportes {
+    public static void main(String[] args) {
+        System.out.println("=== Ejercicio 4: Reportes y manejo de recursos ===");
+
+        // 1) Cuenta con movimientos
+        CuentaBancaria c1 = new CuentaBancaria("1001", "María", 100.0);
+        c1.depositar(50.0);
+        c1.retirar(20.0);
+        System.out.println("Estado c1: " + c1);
+
+        // 2) Generar reporte
+        Path reporte = Paths.get("reporte_transacciones.txt");
+        try {
+            ReporteTransacciones.escribirReporte(c1, reporte);
+            System.out.println("Reporte generado: " + reporte.toAbsolutePath());
+        } catch (HistorialVacioException e) {
+            System.out.println("No debería ocurrir: " + e.getMessage());
+        } catch (IOException e) {
+            System.out.println("Error al escribir el reporte: " + e.getMessage());
+        }
+
+        // 3) Leer el reporte (ya no lanza IOException)
+        System.out.println("\n--- Contenido del reporte ---");
+        ReporteTransacciones.leerReporte(reporte);
+
+        // 4) Probar excepción de historial vacío
+        CuentaBancaria c2 = new CuentaBancaria("1002", "Pedro", 0.0);
+        Path reporteVacio = Paths.get("reporte_vacio.txt");
+        try {
+            ReporteTransacciones.escribirReporte(c2, reporteVacio);
+        } catch (HistorialVacioException e) {
+            System.out.println("Excepción capturada (historial vacío): " + e.getMessage());
+        } catch (IOException e) {
+            System.out.println("Error inesperado al escribir reporte vacío: " + e.getMessage());
+        }
+    }
+}
