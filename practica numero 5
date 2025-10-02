@@ -1,0 +1,190 @@
+package actividad;
+
+/* =========================================================
+ * EJERCICIO 1: Método genérico imprimirArreglo y sobrecarga
+ * =========================================================
+ */
+class InvalidSubscriptException extends RuntimeException {
+    public InvalidSubscriptException(String mensaje) {
+        super(mensaje);
+    }
+}
+
+public class Ejercicio1 {
+
+    // Método genérico normal
+    public static <E> void imprimirArreglo(E[] arregloEntrada) {
+        for (E elemento : arregloEntrada) {
+            System.out.printf("%s ", elemento);
+        }
+        System.out.println();
+    }
+
+    // Método genérico sobrecargado (imprime por rango)
+    public static <E> int imprimirArreglo(E[] arregloEntrada, int subindiceInferior, int subindiceSuperior) {
+        if (subindiceInferior < 0 || subindiceSuperior >= arregloEntrada.length || subindiceSuperior <= subindiceInferior) {
+            throw new InvalidSubscriptException("Índices inválidos para el arreglo.");
+        }
+        int contador = 0;
+        for (int i = subindiceInferior; i <= subindiceSuperior; i++) {
+            System.out.printf("%s ", arregloEntrada[i]);
+            contador++;
+        }
+        System.out.println();
+        return contador;
+    }
+
+    public static void main(String[] args) {
+        Integer[] arregloInteger = {1, 2, 3, 4, 5, 6};
+        Double[] arregloDouble = {1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7};
+        Character[] arregloCharacter = {'H', 'O', 'L', 'A'};
+
+        System.out.println("Ejercicio 1: imprimirArreglo");
+        imprimirArreglo(arregloInteger);
+        imprimirArreglo(arregloInteger, 1, 3);
+        imprimirArreglo(arregloDouble);
+        imprimirArreglo(arregloCharacter, 0, 2);
+    }
+}
+
+/* =========================================================
+ * EJERCICIO 2: Clase genérica Pila<E> con método contains()
+ * =========================================================
+ */
+class ExcepcionPilaLlena extends RuntimeException {
+    public ExcepcionPilaLlena(String mensaje) {
+        super(mensaje);
+    }
+}
+
+class ExcepcionPilaVacia extends RuntimeException {
+    public ExcepcionPilaVacia(String mensaje) {
+        super(mensaje);
+    }
+}
+
+class Pila<E> {
+    private final int tamanio;
+    private int superior;
+    private E[] elementos;
+
+    public Pila() {
+        this(10);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Pila(int s) {
+        tamanio = s > 0 ? s : 10;
+        superior = -1;
+        elementos = (E[]) new Object[tamanio];
+    }
+
+    public void push(E valorAMeter) {
+        if (superior == tamanio - 1)
+            throw new ExcepcionPilaLlena("La pila está llena, no se puede meter " + valorAMeter);
+        elementos[++superior] = valorAMeter;
+    }
+
+    public E pop() {
+        if (superior == -1)
+            throw new ExcepcionPilaVacia("Pila vacía, no se puede sacar");
+        return elementos[superior--];
+    }
+
+    public boolean contains(E elemento) {
+        for (int i = superior; i >= 0; i--) {
+            if (elementos[i].equals(elemento)) return true;
+        }
+        return false;
+    }
+
+    public int size() { return superior + 1; }
+
+    public boolean isEmpty() { return superior == -1; }
+
+    // Usado en Ejercicio 4
+    public boolean esIgual(Pila<E> otraPila) {
+        if (otraPila == null) return false;
+        if (this.size() != otraPila.size()) return false;
+
+        for (int i = 0; i <= this.superior; i++) {
+            E a = this.elementos[i];
+            E b = otraPila.elementos[i];
+            if (a == null && b == null) continue;
+            if (a == null || b == null) return false;
+            if (!a.equals(b)) return false;
+        }
+        return true;
+    }
+}
+
+class Ejercicio2 {
+    public static void main(String[] args) {
+        System.out.println("\nEjercicio 2: Pila con contains()");
+        Pila<Integer> pilaEnteros = new Pila<>(5);
+
+        pilaEnteros.push(10);
+        pilaEnteros.push(20);
+        pilaEnteros.push(30);
+
+        System.out.println("¿La pila contiene 20? " + pilaEnteros.contains(20));
+        System.out.println("¿La pila contiene 50? " + pilaEnteros.contains(50));
+
+        while (!pilaEnteros.isEmpty()) {
+            System.out.println("Sacado: " + pilaEnteros.pop());
+        }
+    }
+}
+
+/* =========================================================
+ * EJERCICIO 3: Método genérico esIgualA en IgualGenerico
+ * =========================================================
+ */
+class IgualGenerico {
+    public static <T> boolean esIgualA(T a, T b) {
+        if (a == null && b == null) return true;
+        if (a == null || b == null) return false;
+        return a.equals(b);
+    }
+}
+
+class Ejercicio3 {
+    public static void main(String[] args) {
+        System.out.println("\nEjercicio 3: IgualGenerico");
+
+        System.out.println("¿10 == 10? " + IgualGenerico.esIgualA(10, 10));
+        System.out.println("¿10 == 20? " + IgualGenerico.esIgualA(10, 20));
+        System.out.println("¿Hola == Hola? " + IgualGenerico.esIgualA("Hola", "Hola"));
+        System.out.println("¿Hola == Mundo? " + IgualGenerico.esIgualA("Hola", "Mundo"));
+        System.out.println("¿null == null? " + IgualGenerico.esIgualA(null, null));
+        System.out.println("¿null == Texto? " + IgualGenerico.esIgualA(null, "Texto"));
+    }
+}
+
+/* =========================================================
+ * EJERCICIO 4: Método esIgual(Pila<E> otraPila)
+ * =========================================================
+ */
+class Ejercicio4 {
+    public static void main(String[] args) {
+        System.out.println("\nEjercicio 4: Comparar pilas con esIgual");
+
+        Pila<Integer> p1 = new Pila<>(5);
+        Pila<Integer> p2 = new Pila<>(5);
+        Pila<Integer> p3 = new Pila<>(5);
+
+        p1.push(10); p1.push(20); p1.push(30);
+        p2.push(10); p2.push(20); p2.push(30);
+        p3.push(10); p3.push(20); p3.push(40);
+
+        System.out.println("p1 vs p2: " + p1.esIgual(p2)); // true
+        System.out.println("p1 vs p3: " + p1.esIgual(p3)); // false
+
+        Pila<String> s1 = new Pila<>(5);
+        Pila<String> s2 = new Pila<>(5);
+        s1.push("Hola"); s1.push("Mundo");
+        s2.push("Hola"); s2.push("Mundo");
+
+        System.out.println("s1 vs s2: " + s1.esIgual(s2)); // true
+    }
+}
